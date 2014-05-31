@@ -15,6 +15,26 @@ I have not met the WP-API? You may see the following guides.
 [Working with Posts]: working-with-posts.md
 [Extending the API]: extending.md
 
+## Usage
+
+   ```js
+   MURPHY.utils.defineConfig({
+			host           : 'http://www.wp-api.com/wp-json',
+			consumerKey    : 'jRHgz4Fvn9t1',
+			consumerSecret : 'AwliLU2Z8b7cpfoVYICfRgdK7n2GbbJR7gW0CNTjTgvmPTBp',
+			token          : 'b0d2D6eiRQywH5tBMeAW07mu',
+			tokenSecret    : 'ZJRtZdRjQZJ8oXlEbv4PPmU4Dd9n3EBxKEImVAZ8tFGvgj80'
+	});
+
+	//Create object collections posts
+	var posts = MURPHY.collections.Posts();
+	
+	//Get Posts, read only
+	posts.get().then(function(response) {
+		//response
+	});
+   ```
+
 ## Contributing
 
 1. Fork it!

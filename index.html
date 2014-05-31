@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Page Test Cliente JS WP-API</title>
+</head>
+<body>	
+	<script src="build/murphy.min.js"></script>
+
+	<script>
+		MURPHY.utils.defineConfig({
+			host           : 'http://localhost/pocketcast/',
+			consumerKey    : 'jRHgz4Fvn9t1',
+			consumerSecret : 'AwliLU2Z8b7cpfoVYICfRgdK7n2GbbJR7gW0CNTjTgvmPTBp',
+			token          : 'b0d2D6eiRQywH5tBMeAW07mu',
+			tokenSecret    : 'ZJRtZdRjQZJ8oXlEbv4PPmU4Dd9n3EBxKEImVAZ8tFGvgj80'
+		});
+
+		var posts = MURPHY.collections.Posts();
+		posts.get({ type : 'resuta_cpt_channel'}).then(function(response) {
+			console.log(response);
+		});
+	</script>
+</body>
+</html>	

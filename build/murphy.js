@@ -2383,534 +2383,538 @@ function binb2b64(binarray)
   return str;
 }
 ;;(function(context, undefined) {
-	'use strict';
+    'use strict';
 
-	function MURPHY() {
-		this.utils             = {};
-		this.collections       = {};
-		this.models            = {};		
-		this.AjaxJSON          = function(){};
-		this.ModelWrapper      = function(){};
-		this.CollectionWrapper = function(){};
+    function MURPHY() {
+        this.utils             = {};
+        this.collections       = {};
+        this.models            = {};        
+        this.AjaxJSON          = function(){};
+        this.ModelWrapper      = function(){};
+        this.CollectionWrapper = function(){};
 
-		//config
-		this.config = {
-			host           : null,			
-			consumerKey    : null,
-			consumerSecret : null,
-			token          : null,
-			tokenSecret    : null
-		};
-	};
+        //config
+        this.config = {
+            host           : null,          
+            consumerKey    : null,
+            consumerSecret : null,
+            token          : null,
+            tokenSecret    : null
+        };
+    }
 
-	MURPHY.prototype.getRootJSON = function(root) {
-		return this.config.host.replace(/\/?$/, '/') + 'wp-json' + ( root || '' );
-	};
+    MURPHY.prototype.getRootJSON = function(root) {
+        return this.config.host.replace(/\/?$/, '/') + 'wp-json' + ( root || '' );
+    };
 
-	MURPHY.prototype.getRootOAuth = function() {
-		return this.config.host.replace(/\/?$/, '/') + 'oauth1';
-	};
+    MURPHY.prototype.getRootOAuth = function() {
+        return this.config.host.replace(/\/?$/, '/') + 'oauth1';
+    };
 
-	context.MURPHY = ( context.MURPHY || new MURPHY() );
+    context.MURPHY = ( context.MURPHY || new MURPHY() );
 })(window);;;(function(global, context, undefined) {
-	'use strict';
+    'use strict';
 
-	var utils = {};	
+    var utils = {}; 
 
-	//helpers
-	utils.slice = Array.prototype.slice;
+    //helpers
+    utils.slice = Array.prototype.slice;
 
-	utils.error = function() {
-		return new Error(message);
-	};
+    utils.error = function(message) {
+        return new Error(message);
+    };
 
-	utils.isArray = function(array) {
-		return Array.isArray(array);
-	};
+    utils.isArray = function(array) {
+        return Array.isArray(array);
+    };
 
-	utils.isError = function(obj) {
-		return ( obj instanceof Error );
-	};	
+    utils.isError = function(obj) {
+        return ( obj instanceof Error );
+    };  
 
-	utils.now = function() {
-		return Date.now;
-	};
+    utils.now = function() {
+        return Date.now;
+    };
 
-	utils.isObject = function(obj) {
-		return ( obj === Object(obj) );
-	};
+    utils.isObject = function(obj) {
+        return ( obj === Object(obj) );
+    };
 
-	utils.isFunction = function(func) {
-		return ( typeof func === 'function' );
-	};
+    utils.isFunction = function(func) {
+        return ( typeof func === 'function' );
+    };
 
-	utils.extend = function(obj) {
-	    if ( !utils.isObject(obj) ) {
-			return obj;
-	    }
+    utils.extend = function(obj) {
+        if ( !utils.isObject(obj) ) {
+            return obj;
+        }
 
-	    [].forEach.call(utils.slice.call(arguments, 1), function(source){
-	    	for ( var prop in source ) {
-	        	obj[prop] = source[prop];
-	      	}
-	    });
+        [].forEach.call(utils.slice.call(arguments, 1), function(source){
+            for ( var prop in source ) {
+                obj[prop] = source[prop];
+            }
+        });
 
-	    return obj;
-	};
+        return obj;
+    };
 
-	utils.proxy = function(context, func) {
-		var execute = context[func]
-		  , args    = utils.slice.call(arguments, 2)
-		;
+    utils.proxy = function(context, func) {
+        var execute = context[func]
+          , args    = utils.slice.call(arguments, 2)
+        ;
 
-		if ( !utils.isFunction(execute) ) {
-			return;
-		}
+        if ( !utils.isFunction(execute) ) {
+            return;
+        }
 
-		return function() {
-			return execute.apply(context, args);
-		};
-	};
+        return function() {
+            return execute.apply(context, args);
+        };
+    };
 
-	utils.addQueryVars = function(objParams, url) {
-		var listParams      = []
-		  , objParamsOrigin = {}
-		  , params          = null
-		  , separator       = url.split('?')
-		;
+    utils.addQueryVars = function(objParams, url) {
+        var listParams      = []
+          , objParamsOrigin = {}
+          , params          = null
+          , separator       = url.split('?')
+        ;
 
-		url             = separator[0];
-		objParamsOrigin = utils.getObjectParamsUrl(separator[1]);
-		objParams       = utils.extend(objParamsOrigin, ( objParams || {}));
+        url             = separator[0];
+        objParamsOrigin = utils.getObjectParamsUrl(separator[1]);
+        objParams       = utils.extend(objParamsOrigin, ( objParams || {}));
 
-		for ( var item in objParams ) {
-			listParams.push( item + '=' + objParams[ item ] );
-		}
+        for ( var item in objParams ) {
+            listParams.push( item + '=' + objParams[ item ] );
+        }
 
-		return url + '?' + listParams.join( '&' );
-	};
+        return url + '?' + listParams.join( '&' );
+    };
 
-	utils.getObjectParamsUrl = function(strParams) {
-		var objParams = {};
+    utils.getObjectParamsUrl = function(strParams) {
+        var objParams = {};
 
-		if ( !strParams ) {
-			return objParams;
-		}
+        if ( !strParams ) {
+            return objParams;
+        }
 
-		strParams.split('&').forEach(function(item) {
-			item 			   = item.split('=');
-			objParams[item[0]] = ( item[1] || '' );
-		});
+        strParams.split('&').forEach(function(item) {
+            item               = item.split('=');
+            objParams[item[0]] = ( item[1] || '' );
+        });
 
-		return objParams;
-	};
+        return objParams;
+    };
 
-	utils.nonce = function(length) {
-		var chars  = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
-		var result = '';
-		
-		for (var i = 0; i < length; ++i) {
-			var rnum = Math.floor(Math.random() * chars.length);
-			result += chars.substring(rnum, rnum+1);
-		}
-		
-		return result;
-	};
+    utils.nonce = function(length) {
+        var chars  = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
+        var result = '';
+        
+        for (var i = 0; i < length; ++i) {
+            var rnum = Math.floor(Math.random() * chars.length);
+            result += chars.substring(rnum, rnum+1);
+        }
+        
+        return result;
+    };
 
-	utils.timestamp = function() {
-		var t = (new Date()).getTime() + 0;
-		return Math.floor(t / 1000);
-	};
+    utils.timestamp = function() {
+        var t = (new Date()).getTime() + 0;
+        return Math.floor(t / 1000);
+    };
 
-	utils.HmacSHA1 = function(key, text) {
-		return b64_hmac_sha1(key, text);
-	};
+    utils.HmacSHA1 = function(key, text) {
+        return b64_hmac_sha1(key, text);
+    };
 
-	utils.defineConfig = function(options) {
-		utils.extend(MURPHY.config, ( options || {} ));
-	};
-	
-	context.utils = ( utils || context.utils );
+    utils.defineConfig = function(options) {
+        utils.extend(MURPHY.config, ( options || {} ));
+    };
+    
+    context.utils = ( utils || context.utils );
 })(window, MURPHY);
 
 ;;(function(global, context, _, undefined) {
-	'use strict';
-	
-	//xhr ajax
-	function _xhr() {
-		try {
-			return new XMLHttpRequest();
-		} catch(e) {
+    'use strict';
+    
+    //xhr ajax
+    function _xhr() {
+        try {
+            return new XMLHttpRequest();
+        } catch(e) {
 
-		}
-	};
+        }
+    }
 
-	var supportStatus = {		
-		1223 : 204 //Support: IE9 | #1450: sometimes IE returns 1223 when it should be 204
-	};
+    var supportStatus = {       
+        1223 : 204 //Support: IE9 | #1450: sometimes IE returns 1223 when it should be 204
+    };
 
-	//Constructor OAuthHeader
-	var OAuthHeader = function(url, method, data) {
-		return this.initialize(url, method, data);
-	};
+    //Constructor OAuthHeader
+    var OAuthHeader = function(url, method, data) {
+        return this.initialize(url, method, data);
+    };
 
-	OAuthHeader.prototype.createConfig = function() {
-		this.key = [
-			MURPHY.config.consumerSecret
-		  ,	MURPHY.config.tokenSecret
-		].join('&');
+    OAuthHeader.prototype.createConfig = function() {
+        this.key = [
+            MURPHY.config.consumerSecret
+          , MURPHY.config.tokenSecret
+        ].join('&');
 
-		this.auths = {
-			'oauth_consumer_key'     : MURPHY.config.consumerKey,
-			'oauth_nonce'            : _.nonce(6),
-			'oauth_signature_method' : 'HMAC-SHA1',
-			'oauth_timestamp'        : _.timestamp(),
-			'oauth_token'			 : MURPHY.config.token
-		};
-	};
+        this.auths = {
+            'oauth_consumer_key'     : MURPHY.config.consumerKey,
+            'oauth_nonce'            : _.nonce(6),
+            'oauth_signature_method' : 'HMAC-SHA1',
+            'oauth_timestamp'        : _.timestamp(),
+            'oauth_token'            : MURPHY.config.token
+        };
+    };
 
-	OAuthHeader.prototype.initialize = function(url, method, data) {		
-		this.createConfig();
-		this.auths['oauth_signature'] = this.getSignature(url, method, data);
+    OAuthHeader.prototype.initialize = function(url, method, data) {        
+        this.createConfig();
+        this.auths['oauth_signature'] = this.getSignature(url, method, data);
 
-		return this.getHeaderObject();
-	};
+        return this.getHeaderObject();
+    };
 
-	OAuthHeader.prototype.getSignature = function(url, method, data) {
-		var params = _.extend(data, this.auths);
+    OAuthHeader.prototype.getSignature = function(url, method, data) {
+        var params = _.extend(data, this.auths);
 
-		var signature = [
-			 method
-		   , encodeURIComponent(url)
-		   , this.transformParamsEnconde(params)
-		];
+        var signature = [
+             method
+           , encodeURIComponent(url)
+           , this.transformParamsEnconde(params)
+        ];
 
-		return encodeURIComponent(_.HmacSHA1(this.key, signature.join('&')));
-	};
+        return encodeURIComponent(_.HmacSHA1(this.key, signature.join('&')));
+    };
 
-	OAuthHeader.prototype.transformParamsEnconde = function(params) {
-		var transform = this.convertFormSubmitString(params);
+    OAuthHeader.prototype.transformParamsEnconde = function(params) {
+        var transform = this.convertFormSubmitString(params);
 
-		return encodeURIComponent(( transform.sort() || [] ).join('&'));
-	};
+        return encodeURIComponent(( transform.sort() || [] ).join('&'));
+    };
 
-	OAuthHeader.prototype.convertFormSubmitString = function(obj, wrapper) {
-		var params = []
-		  , item   = null
-		;
+    OAuthHeader.prototype.convertFormSubmitString = function(obj, wrapper) {
+        var params = []
+          , item   = null
+        ;
 
-		wrapper = ( wrapper || '' );
+        wrapper = ( wrapper || '' );
 
-		for ( var item in obj ) {
-			params.push(item + '=' + wrapper + obj[item] + wrapper);
-		}
+        for ( item in obj ) {
+            params.push(item + '=' + wrapper + obj[item] + wrapper);
+        }
 
-		return params;
-	};
+        return params;
+    };
 
-	OAuthHeader.prototype.getHeaderObject = function() {
-		var transform = this.convertFormSubmitString(this.auths, '"');
-		
-		return {
-			'Authorization' : 'OAuth realm="WP-API", ' + transform.join(', ')
-		};
-	};
+    OAuthHeader.prototype.getHeaderObject = function() {
+        var transform = this.convertFormSubmitString(this.auths, '"');
+        
+        return {
+            'Authorization' : 'OAuth realm="WP-API", ' + transform.join(', ')
+        };
+    };
 
-	//Constructor Ajax
-	var Ajax = function(options) {
-		this.xhr     = _xhr();
-		this.options = this.parseOptions(options);
-	};
-	
-	Ajax.prototype.parseOptions = function(options) {
-		options = _.extend({
-			url      : '',
-			async    : true,
-			type     : 'GET',
-			dataType : null,
-			data     : {},
-			headers  : {}
-		}, (options || {}));
+    //Constructor Ajax
+    var Ajax = function(options) {
+        this.xhr     = _xhr();
+        this.options = this.parseOptions(options);
+    };
+    
+    Ajax.prototype.parseOptions = function(options) {
+        options = _.extend({
+            url      : '',
+            async    : true,
+            type     : 'GET',
+            dataType : null,
+            data     : {},
+            headers  : {}
+        }, (options || {}));
 
-		options.headers = _.extend({
-			'X-Requested-With' : 'XMLHttpRequest',
-			'X-WP-API'         : 'true'
-		}, options.headers);
+        options.headers = _.extend({
+            'X-Requested-With' : 'XMLHttpRequest',
+            'X-WP-API'         : 'true'
+        }, options.headers);
 
-		return options;
-	};
+        return options;
+    };
 
-	Ajax.prototype.send = function() {
-		//open request
-		this.xhr.open(this.options.type, this.options.url, this.options.async);
-		//set headers
-		this.setHeader();
-		//set response type
-		this.setResponseType();		
-		//send request ajax
-		return this._createPromise();
-	};
+    Ajax.prototype.send = function() {
+        //open request
+        this.xhr.open(this.options.type, this.options.url, this.options.async);
+        //set headers
+        this.setHeader();
+        //set response type
+        this.setResponseType();     
+        //send request ajax
+        return this._createPromise();
+    };
 
-	Ajax.prototype.setResponseType = function() {
-		if ( this.options.dataType ) {
-			this.xhr.responseType = this.options.dataType;
-		}
-	};
+    Ajax.prototype.setResponseType = function() {
+        if ( this.options.dataType ) {
+            this.xhr.responseType = this.options.dataType;
+        }
+    };
 
-	Ajax.prototype._createPromise = function() {
-		var self = this;
+    Ajax.prototype._createPromise = function() {
+        var self = this;
 
-		return new RSVP.Promise(function(resolve, reject) {
-			self.addEventListener(resolve, reject);
-			self.xhr.send( self.options.data || null );			
-		});
-	};
+        return new RSVP.Promise(function(resolve, reject) {
+            self.addEventListener(resolve, reject);
+            self.xhr.send( self.options.data || null );         
+        });
+    };
 
-	Ajax.prototype.addEventListener = function(resolve, reject) {
-		this.xhr.addEventListener('load', _.proxy(this, '_onLoad', resolve, reject));		
-		this.xhr.addEventListener('error', _.proxy(this, '_onError', reject));
-	};
+    Ajax.prototype.addEventListener = function(resolve, reject) {
+        this.xhr.addEventListener('load', _.proxy(this, '_onLoad', resolve, reject));       
+        this.xhr.addEventListener('error', _.proxy(this, '_onError', reject));
+    };
 
-	Ajax.prototype._onLoad = function(resolve, reject) {		
-		if ( !this.isSuccessRequest() ) {
-			reject(_.error(this.xhr.statusText));
-			return;
-		}
+    Ajax.prototype._onLoad = function(resolve, reject) {        
+        if ( !this.isSuccessRequest() ) {
+            reject(_.error(this.xhr.statusText));
+            return;
+        }
 
-		resolve(this.getParseResponse());
-	};
+        resolve(this.getParseResponse());
+    };
 
-	Ajax.prototype._onError = function(reject) {
-		reject(_.error('Network Error'));
-	};
+    Ajax.prototype._onError = function(reject) {
+        reject(_.error('Network Error'));
+    };
 
-	Ajax.prototype.getStatus = function() {
-		return ( supportStatus[ this.xhr.status ] || this.xhr.status );
-	};
+    Ajax.prototype.getStatus = function() {
+        return ( supportStatus[ this.xhr.status ] || this.xhr.status );
+    };
 
-	Ajax.prototype.isSuccessRequest = function() {
-		var status = this.getStatus();	
+    Ajax.prototype.isSuccessRequest = function() {
+        var status = this.getStatus();  
 
-		return ( status >= 200 && status < 300 || status === 304 );
-	};
+        return ( status >= 200 && status < 300 || status === 304 );
+    };
 
-	Ajax.prototype.setHeader = function() {
-		for ( var item in this.options.headers ) {
-			this.xhr.setRequestHeader(item, this.options.headers[ item ]);
-		}
-	};
+    Ajax.prototype.setHeader = function() {
+        for ( var item in this.options.headers ) {
+            this.xhr.setRequestHeader(item, this.options.headers[ item ]);
+        }
+    };
 
-	Ajax.prototype.getParseResponse = function() {
-		var _response = false
-		  , pages     = {}
-		  , links     = {}
-		;
+    Ajax.prototype.getParseResponse = function() {
+        var _response = false
+          , pages     = {}
+          , links     = {}
+        ;
 
-		if ( this.xhr.response ) {
-			_response = this.xhr.response;
-		}
-		else if ( this.xhr.responseText ) {
-			_response = JSON.parse(this.xhr.responseText);
-		}
+        if ( this.xhr.response ) {
+            _response = this.xhr.response;
+        }
+        else if ( this.xhr.responseText ) {
+            _response = JSON.parse(this.xhr.responseText);
+        }
 
-		if ( this.options.type.toUpperCase() !== 'GET' ) {
-			return _response;
-		}
+        if ( this.options.type.toUpperCase() !== 'GET' ) {
+            return _response;
+        }
 
-		pages = this._getObjectPages();
-		links = this._getObjectLinks(pages.totalPages);
+        pages = this._getObjectPages();
+        links = this._getObjectLinks(pages.totalPages);
 
-		return _.extend({ list : _response }, pages, links);
-	};
+        return _.extend({ list : _response }, pages, links);
+    };
 
-	Ajax.prototype._getObjectPages = function(obj) {
-		return {
-			total 	   : parseInt( this.xhr.getResponseHeader('X-WP-Total') || 0 ),
-			totalPages : parseInt( this.xhr.getResponseHeader('X-WP-TotalPages') || 0 )
-		};
-	};
+    Ajax.prototype._getObjectPages = function(obj) {
+        var total       = ( this.xhr.getResponseHeader('X-WP-Total') || 0 )
+          , totalPages  = ( this.xhr.getResponseHeader('X-WP-TotalPages') || 0 )
+        ;  
 
-	Ajax.prototype._getObjectLinks = function(totalPages) {
-		var next, prev, page;
+        return {
+            total      : parseInt(total, 10),
+            totalPages : parseInt(totalPages, 10)
+        };
+    };
 
-		page = ( this.options.url.match(/page=([0-9]{1,})/) || [1,1] )[1];
-		page = parseInt(page);
+    Ajax.prototype._getObjectLinks = function(totalPages) {
+        var next, prev, page;
 
-		//get next e prev pages
-		next = ( ( page + 1 ) > totalPages ) ? false : ( page + 1 );
-		prev = ( ( page - 1 ) <= 0 ) ? false : ( page - 1 );
+        page = ( this.options.url.match(/page=([0-9]{1,})/) || [1,1] )[1];
+        page = parseInt(page, 10);
 
-		return {
-			next : ( next && _.addQueryVars({ page : next }, this.options.url) ),
-			prev : ( prev && _.addQueryVars({ page : prev }, this.options.url) )
-		};
-	};
+        //get next e prev pages
+        next = ( ( page + 1 ) > totalPages ) ? false : ( page + 1 );
+        prev = ( ( page - 1 ) <= 0 ) ? false : ( page - 1 );
 
-	var getJSON = function(url, data) {
-		var authorization, ajax;
-		var args = {
-			url      : _.addQueryVars(( data || {}), url),
-			type     : 'GET',
-			dataType : 'json',
-			headers  : {
-				'Accept'        : 'application/json, text/javascript',
-				'Content-Type'  : 'application/json'
-			}
-		};
+        return {
+            next : ( next && _.addQueryVars({ page : next }, this.options.url) ),
+            prev : ( prev && _.addQueryVars({ page : prev }, this.options.url) )
+        };
+    };
 
-		if ( MURPHY.config.token ) {
-			authorization = new OAuthHeader(url, 'GET', data);
-			_.extend(args.headers, authorization);
-		}
+    var getJSON = function(url, data) {
+        var authorization, ajax;
+        var args = {
+            url      : _.addQueryVars(( data || {}), url),
+            type     : 'GET',
+            dataType : 'json',
+            headers  : {
+                'Accept'        : 'application/json, text/javascript',
+                'Content-Type'  : 'application/json'
+            }
+        };
 
-		ajax = new Ajax(args);
-		
-		return ajax.send();
-	};
+        if ( MURPHY.config.token ) {
+            authorization = new OAuthHeader(url, 'GET', data);
+            _.extend(args.headers, authorization);
+        }
 
-	context.getJSON = ( getJSON || context.getJSON );
+        ajax = new Ajax(args);
+        
+        return ajax.send();
+    };
+
+    context.getJSON = ( getJSON || context.getJSON );
 })(window, MURPHY, MURPHY.utils);;;(function(global, context, _, undefined) {
-	'use strict';
+    'use strict';
 
-	function build() {
-		var Constructor, Instance;
+    function build() {
+        var Constructor, Instance;
 
-		Constructor = function(attributes) {
-			var instance = new Instance();
+        Constructor = function(attributes) {
+            var instance = new Instance();
 
-			// Apply the initializer on the given instance.
-			instance.initialize.apply(instance, arguments);
+            // Apply the initializer on the given instance.
+            instance.initialize.apply(instance, arguments);
 
-			return instance;
-		};
+            return instance;
+        };
 
-		Instance           = function(){};
-		Instance.prototype = Constructor.prototype;
-		 
-		// Save some typing and make an alias to the prototype.
-		Constructor.fn = Constructor.prototype;
+        Instance           = function(){};
+        Instance.prototype = Constructor.prototype;
+         
+        // Save some typing and make an alias to the prototype.
+        Constructor.fn = Constructor.prototype;
 
-		// Define a noop initializer.
-		Constructor.fn.initialize = function(){};		
+        // Define a noop initializer.
+        Constructor.fn.initialize = function(){};       
 
-		return Constructor;
-	};
+        return Constructor;
+    }
 
-	var CollectionWrapper = function(namespace, root, callback) {
-		var scope = context.collections[namespace] = build();
-		
-		callback.call(
-			  scope
-			, scope
-			, _.proxy(MURPHY, 'getRootJSON', root)
-			, _
-			, MURPHY.getJSON
-		);	
+    var CollectionWrapper = function(namespace, root, callback) {
+        var scope = context.collections[namespace] = build();
+        
+        callback.call(
+              scope
+            , scope
+            , _.proxy(MURPHY, 'getRootJSON', root)
+            , _
+            , MURPHY.getJSON
+        );  
 
-		return scope;
-	};
-	
-	context.CollectionWrapper = ( CollectionWrapper || context.CollectionWrapper );
+        return scope;
+    };
+    
+    context.CollectionWrapper = ( CollectionWrapper || context.CollectionWrapper );
 })(window, MURPHY, MURPHY.utils);;;(function(global, context, _, undefined) {
-	'use strict';
+    'use strict';
 
-	function build() {
-		var Constructor, Instance;
+    function build() {
+        var Constructor, Instance;
 
-		Constructor = function(attributes) {
-			var instance = new Instance();
-			
-			//extend the object attributes with the model WP-API
-			instance.assign.call(null, instance, attributes);
-			// Apply the initializer on the given instance.
-			instance.initialize.apply(instance, _.slice.call(arguments, 1));
+        Constructor = function(attributes) {
+            var instance = new Instance();
+            
+            //extend the object attributes with the model WP-API
+            instance.assign.call(null, instance, attributes);
+            // Apply the initializer on the given instance.
+            instance.initialize.apply(instance, _.slice.call(arguments, 1));
 
-			return instance;
-		};
+            return instance;
+        };
 
-		Instance           = function(){};
-		Instance.prototype = Constructor.prototype;
-		 
-		// Save some typing and make an alias to the prototype.
-		Constructor.fn = Constructor.prototype;
+        Instance           = function(){};
+        Instance.prototype = Constructor.prototype;
+         
+        // Save some typing and make an alias to the prototype.
+        Constructor.fn = Constructor.prototype;
 
-		// Define a noop initializer.
-		Constructor.fn.initialize = function(){};
-		Constructor.fn.assign     = _.extend;
+        // Define a noop initializer.
+        Constructor.fn.initialize = function(){};
+        Constructor.fn.assign     = _.extend;
 
-		return Constructor;
-	};
+        return Constructor;
+    }
 
-	var ModelWrapper = function(namespace, callback) {
-		var scope = context.models[namespace] = build();
-		
-		callback.call(
-			  scope
-			, scope
-			, _
-		);
+    var ModelWrapper = function(namespace, callback) {
+        var scope = context.models[namespace] = build();
+        
+        callback.call(
+              scope
+            , scope
+            , _
+        );
 
-		return scope;
-	};
-	
-	context.ModelWrapper = ( ModelWrapper || context.ModelWrapper );
+        return scope;
+    };
+    
+    context.ModelWrapper = ( ModelWrapper || context.ModelWrapper );
 })(window, MURPHY, MURPHY.utils);;MURPHY.ModelWrapper('Post', function(Post, _) {
-	'use strict';
-	
-	Post.fn.initialize = function() {
+    'use strict';
+    
+    Post.fn.initialize = function() {
 
-	};
+    };
 
-	Post.fn.getImage = function(size) {		
-		var sizes = this.getSizesImage();
+    Post.fn.getImage = function(size) {     
+        var sizes = this.getSizesImage();
 
-		return ( sizes && sizes[size] ).url;
-	};
+        return ( sizes && sizes[size] ).url;
+    };
 
-	Post.fn.getSizesImage = function() {
-		if ( !this.featured_image || !this.featured_image.attachment_meta ) {
-			return false;
-		}
+    Post.fn.getSizesImage = function() {
+        if ( !this.featured_image || !this.featured_image.attachment_meta ) {
+            return false;
+        }
 
-		return this.featured_image.attachment_meta.sizes;
-	};
+        return this.featured_image.attachment_meta.sizes;
+    };
 
-	Post.fn.getPostMeta = function(key, single) {
-		var filter = [];
+    Post.fn.getPostMeta = function(key, single) {
+        var filter = [];
 
-		if ( !_.isArray(this.post_meta) ) {
-			return null;
-		}
+        if ( !_.isArray(this.post_meta) ) {
+            return null;
+        }
 
-		filter = this.post_meta.filter(function(item) {
-			return ( item.key === key );
-		});
+        filter = this.post_meta.filter(function(item) {
+            return ( item.key === key );
+        });
 
-		return ( single ) ? filter[0] : filter;
-	};
+        return ( single ) ? filter[0] : filter;
+    };
 });;MURPHY.CollectionWrapper('Posts', '/posts', function(Posts, getRoot, _, getJSON) {
-	'use strict';
+    'use strict';
 
-	Posts.fn.initialize = function() {};
+    Posts.fn.initialize = function() {};
 
-	Posts.fn.get = function(params) {
-		var send = getJSON(getRoot(), ( params || {} ));
-		
-		return send.then(
-			  this._success.bind(this)
-			, this._error.bind(this)
-		);
-	};
+    Posts.fn.get = function(params) {
+        var send = getJSON(getRoot(), ( params || {} ));
+        
+        return send.then(
+              this._success.bind(this)
+            , this._error.bind(this)
+        );
+    };
 
-	Posts.fn._success = function(response) {
-		response.list = response.list.map(function(item) {
-			return MURPHY.models.Post(item);
-		});
+    Posts.fn._success = function(response) {
+        response.list = response.list.map(function(item) {
+            return MURPHY.models.Post(item);
+        });
 
-		return response;
-	};
+        return response;
+    };
 
-	Posts.fn._error = function(error) {
-		return error;
-	};
+    Posts.fn._error = function(error) {
+        return error;
+    };
 });
